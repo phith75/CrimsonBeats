@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect, useRe
 import YouTube from 'react-youtube';
 import { useAuth } from './AuthContext';
 import { supabase } from '@/lib/supabaseClient';
+import { showLoading, dismissToast } from '@/utils/toast';
 
 export interface Track {
   id: string;
@@ -51,6 +52,7 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const loadingToastId = useRef<string | number | null>(null);
   const { user } = useAuth();
 
   const currentTrack = currentTrackIndex !== null ? playlist[currentTrackIndex] : null;
@@ -125,6 +127,10 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
 
   const playTrack = (index: number, tracks: Track[] = playlist) => {
     if (tracks[index]) {
+      if (loadingToastId.current) {
+        dismissToast(loadingToastId.current as string);
+      }
+      loadingToastId.current = showLoading("Đang tải bài hát...");
       setCurrentTrackIndex(index);
       setIsPlaying(true);
       setProgress(0);
@@ -170,6 +176,10 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
 
   const onStateChange = (event: any) => {
     if (event.data === 1) { // Playing
+      if (loadingToastId.current) {
+        dismissToast(loadingToastId.current as string);
+        loadingToastId.current = null;
+      }
       setIsPlaying(true);
       setDuration(event.target.getDuration());
     } else { // Paused, Buffering, Ended, etc.

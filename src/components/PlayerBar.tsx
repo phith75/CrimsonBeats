@@ -23,7 +23,7 @@ const PlayerBar = () => {
   };
 
   return (
-    <footer className="bg-secondary p-2 border-t border-border md:grid md:grid-cols-3 md:items-center md:gap-4 md:p-4 h-[72px] md:h-[80px]">
+    <footer className="bg-secondary p-2 border-t border-border md:grid md:grid-cols-3 md:items-center md:gap-4 md:p-4 h-[88px] md:h-[80px]">
       {/* --- Left Section (Track Info) --- */}
       <div className="flex items-center space-x-3 md:space-x-4 overflow-hidden">
         <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-12 h-12 md:w-14 md:h-14 object-cover rounded flex-shrink-0" />
@@ -55,7 +55,7 @@ const PlayerBar = () => {
         </div>
         {/* Progress Bar (Mobile & Desktop) */}
         <div className="w-full flex items-center space-x-2 px-1 md:px-0">
-          <span className="text-xs text-muted-foreground w-10 text-right">{formatTime(progress)}</span>
+          <span className="text-xs text-muted-foreground flex-shrink-0">{formatTime(progress)}</span>
           <Slider
             value={[progress]}
             max={duration || 1}
@@ -63,7 +63,7 @@ const PlayerBar = () => {
             onValueChange={handleProgressChange}
             className="w-full"
           />
-          <span className="text-xs text-muted-foreground w-10 text-left">{formatTime(duration)}</span>
+          <span className="text-xs text-muted-foreground flex-shrink-0">{formatTime(duration)}</span>
         </div>
       </div>
 

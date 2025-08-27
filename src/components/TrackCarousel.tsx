@@ -22,20 +22,22 @@ const TrackCarousel = ({ title, tracks }: TrackCarouselProps) => {
       <Carousel
         opts={{
           align: "start",
-          // Only loop if there are enough items to make scrolling meaningful
           loop: tracks.length > 5,
         }}
         className="w-full"
       >
         <CarouselContent className="-ml-4">
           {tracks.map((track, index) => (
-            <CarouselItem key={track.id + index} className="pl-4 basis-auto">
+            <CarouselItem 
+              key={track.id + index} 
+              className="pl-4 basis-2/5 sm:basis-1/3 md:basis-1/4 xl:basis-1/5"
+            >
               <TrackCard track={track} />
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="hidden sm:flex" />
+        <CarouselNext className="hidden sm:flex" />
       </Carousel>
     </section>
   );

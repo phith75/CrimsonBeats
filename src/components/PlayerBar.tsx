@@ -23,7 +23,7 @@ const PlayerBar = () => {
   };
 
   return (
-    <footer className="bg-secondary p-2 border-t border-border md:grid md:grid-cols-3 md:items-center md:gap-4 md:p-4 h-[88px] md:h-[80px]">
+    <footer className="bg-secondary p-2 border-t border-border md:grid md:grid-cols-3 md:items-center md:gap-4 md:p-4 h-[100px] md:h-[100px]">
       {/* --- Left Section (Track Info) --- */}
       <div className="flex items-center space-x-3 md:space-x-4 overflow-hidden">
         <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-12 h-12 md:w-14 md:h-14 object-cover rounded flex-shrink-0" />

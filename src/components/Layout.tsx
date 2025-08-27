@@ -1,26 +1,11 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Sidebar from "@/components/Sidebar";
-import MainContent from "@/components/MainContent";
 import PlayerBar from "@/components/PlayerBar";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import TrackDetail from "./TrackDetail";
-import Library from "./Library";
 
-const PageContent = () => {
-  const location = useLocation();
-  
-  if (location.pathname.startsWith('/track/')) {
-    return <TrackDetail />;
-  }
-  if (location.pathname === '/library') {
-    return <Library />;
-  }
-  return <MainContent />;
-};
-
-const Index = () => {
+const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -42,7 +27,7 @@ const Index = () => {
         </div>
         
         <div className="flex flex-col flex-1 overflow-y-auto">
-          <PageContent />
+          <Outlet />
         </div>
       </div>
       <PlayerBar />
@@ -50,4 +35,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Layout;

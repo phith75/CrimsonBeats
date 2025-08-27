@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const SidebarLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => (
   <NavLink
     to={to}
+    end // Use 'end' for the home link to avoid it being active on other routes
     className={({ isActive }) =>
       cn(
         "flex items-center space-x-3 text-white hover:text-primary transition-colors",
@@ -25,6 +26,9 @@ const Sidebar = () => {
         <ul className="space-y-4">
           <li>
             <SidebarLink to="/" icon={<Home />} label="Home" />
+          </li>
+          <li>
+            <SidebarLink to="/search" icon={<Search />} label="Search" />
           </li>
           <li>
             <SidebarLink to="/library" icon={<Library />} label="My Library" />

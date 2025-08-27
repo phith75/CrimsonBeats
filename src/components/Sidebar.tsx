@@ -31,7 +31,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="bg-black p-6 flex flex-col space-y-8 w-64 h-full">
+    <aside className="bg-black p-6 pt-20 md:pt-6 flex flex-col space-y-8 w-72 h-full">
       <div>
         <h1 className="text-3xl font-bold text-primary mb-8">CrimsonBeats</h1>
         <nav>

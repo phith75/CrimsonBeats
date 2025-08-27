@@ -7,7 +7,10 @@ interface TrackCardProps {
 
 const TrackCard = ({ track }: TrackCardProps) => {
   return (
-    <Link to={`/track/${track.id}`} className="bg-secondary p-4 rounded-lg group">
+    <Link 
+      to={`/track/${track.id}`} 
+      className="block bg-secondary p-4 rounded-lg group transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/20"
+    >
       <img src={track.thumbnail} alt={track.title} className="w-full aspect-square object-cover rounded-md mb-2" />
       <p className="font-semibold truncate group-hover:underline">{track.title}</p>
       <p className="text-sm text-muted-foreground truncate">{track.artist}</p>

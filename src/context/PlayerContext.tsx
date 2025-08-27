@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
 import YouTube from 'react-youtube';
+import { useAuth } from './AuthContext';
+import { supabase } from '@/lib/supabaseClient';
 
 export interface Track {
   id: string;
@@ -49,6 +51,26 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { user } = useAuth();
+
+  const currentTrack = currentTrackIndex !== null ? playlist[currentTrackIndex] : null;
+
+  useEffect(() => {
+    const logHistory = async () => {
+      if (currentTrack && user) {
+        await supabase.from('history').insert({
+          user_id: user.id,
+          video_id: currentTrack.id,
+          title: currentTrack.title,
+          artist: currentTrack.artist,
+          thumbnail: currentTrack.thumbnail,
+        });
+      }
+    };
+    if (currentTrack) {
+      logHistory();
+    }
+  }, [currentTrack, user]);
 
   useEffect(() => {
     const savedPlaylist = localStorage.getItem('playlist');
@@ -81,8 +103,6 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     }
     return clearProgressInterval;
   }, [isPlaying, player, startProgressInterval, clearProgressInterval]);
-
-  const currentTrack = currentTrackIndex !== null ? playlist[currentTrackIndex] : null;
 
   const setVolume = (newVolume: number) => {
     setVolumeState(newVolume);

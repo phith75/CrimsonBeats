@@ -3,8 +3,10 @@ import { useParams, Link } from 'react-router-dom';
 import { usePlayer, Track } from '@/context/PlayerContext';
 import { Button } from '@/components/ui/button';
 import { Play, Pause, Heart, Clock, BarChart2, MessageCircle } from 'lucide-react';
-import { showError } from '@/utils/toast';
+import { showError, showSuccess } from '@/utils/toast';
 import { formatDuration } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabaseClient';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
@@ -22,16 +24,14 @@ const TrackDetail = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const [details, setDetails] = useState<TrackDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [loadingFavorite, setLoadingFavorite] = useState(true);
   const { playSingleTrack, currentTrack, isPlaying, togglePlayPause } = usePlayer();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchTrackDetails = async () => {
       if (!videoId) return;
-      if (!API_KEY) {
-        showError("YouTube API key is not configured.");
-        setLoading(false);
-        return;
-      }
       setLoading(true);
       try {
         const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${API_KEY}`);
@@ -62,9 +62,48 @@ const TrackDetail = () => {
         setLoading(false);
       }
     };
-
     fetchTrackDetails();
   }, [videoId]);
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!user || !videoId) return;
+      setLoadingFavorite(true);
+      const { data } = await supabase.from('favorites').select('id').eq('user_id', user.id).eq('video_id', videoId).single();
+      setIsFavorite(!!data);
+      setLoadingFavorite(false);
+    };
+    checkFavorite();
+  }, [user, videoId]);
+
+  const toggleFavorite = async () => {
+    if (!user || !details) return;
+    setLoadingFavorite(true);
+    if (isFavorite) {
+      const { error } = await supabase.from('favorites').delete().eq('user_id', user.id).eq('video_id', details.id);
+      if (!error) {
+        setIsFavorite(false);
+        showSuccess("Đã xóa khỏi danh sách yêu thích.");
+      } else {
+        showError("Không thể xóa khỏi danh sách yêu thích.");
+      }
+    } else {
+      const { error } = await supabase.from('favorites').insert({
+        user_id: user.id,
+        video_id: details.id,
+        title: details.title,
+        artist: details.artist,
+        thumbnail: details.thumbnail,
+      });
+      if (!error) {
+        setIsFavorite(true);
+        showSuccess("Đã thêm vào danh sách yêu thích.");
+      } else {
+        showError("Không thể thêm vào danh sách yêu thích.");
+      }
+    }
+    setLoadingFavorite(false);
+  };
 
   const isCurrentlyPlaying = isPlaying && currentTrack?.id === details?.id;
 
@@ -95,15 +134,11 @@ const TrackDetail = () => {
           <Link to={`/channel/${details.channelId}`} className="text-xl text-muted-foreground hover:text-primary hover:underline">{details.artist}</Link>
           <div className="flex items-center gap-4 mt-6">
             <Button size="lg" onClick={handlePlayPauseClick}>
-              {isCurrentlyPlaying ? (
-                <Pause className="mr-2 h-5 w-5 fill-current" />
-              ) : (
-                <Play className="mr-2 h-5 w-5 fill-current" />
-              )}
+              {isCurrentlyPlaying ? <Pause className="mr-2 h-5 w-5 fill-current" /> : <Play className="mr-2 h-5 w-5 fill-current" />}
               {isCurrentlyPlaying ? 'Pause' : 'Play'}
             </Button>
-            <Button variant="outline" size="icon">
-              <Heart />
+            <Button variant="outline" size="icon" onClick={toggleFavorite} disabled={loadingFavorite}>
+              <Heart className={isFavorite ? "fill-primary text-primary" : ""} />
             </Button>
             <span className="text-muted-foreground">{details.duration}</span>
           </div>

@@ -1,22 +1,30 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Search, Play } from "lucide-react";
 import { usePlayer, Track } from "@/context/PlayerContext";
 import { showError } from "@/utils/toast";
+import { Link } from "react-router-dom";
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 const SearchResults = ({ tracks }: { tracks: Track[] }) => {
-  const { playTrack } = usePlayer();
+  const { loadPlaylist } = usePlayer();
   return (
     <div className="mt-6">
-      <h3 className="text-xl font-bold mb-4">Search Results</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold">Search Results</h3>
+        <Button onClick={() => loadPlaylist(tracks)}>
+          <Play className="mr-2 h-4 w-4" /> Play All
+        </Button>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {tracks.map((track, index) => (
-          <div key={track.id} className="bg-secondary p-4 rounded-lg cursor-pointer hover:bg-muted/50" onClick={() => playTrack(index)}>
-            <img src={track.thumbnail} alt={track.title} className="w-full aspect-square object-cover rounded-md mb-2" />
-            <p className="font-semibold truncate">{track.title}</p>
+        {tracks.map((track) => (
+          <div key={track.id} className="bg-secondary p-4 rounded-lg group relative">
+            <Link to={`/track/${track.id}`}>
+              <img src={track.thumbnail} alt={track.title} className="w-full aspect-square object-cover rounded-md mb-2" />
+              <p className="font-semibold truncate hover:underline">{track.title}</p>
+            </Link>
             <p className="text-sm text-muted-foreground truncate">{track.artist}</p>
           </div>
         ))}

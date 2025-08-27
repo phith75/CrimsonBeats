@@ -1,4 +1,21 @@
-import { Home, Search, Library, ListMusic } from "lucide-react";
+import { Home, Search, Library } from "lucide-react";
+import { NavLink } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+const SidebarLink = ({ to, icon, label }: { to: string, icon: React.ReactNode, label: string }) => (
+  <NavLink
+    to={to}
+    className={({ isActive }) =>
+      cn(
+        "flex items-center space-x-3 text-white hover:text-primary transition-colors",
+        isActive && "text-primary"
+      )
+    }
+  >
+    {icon}
+    <span>{label}</span>
+  </NavLink>
+);
 
 const Sidebar = () => {
   return (
@@ -7,36 +24,13 @@ const Sidebar = () => {
       <nav>
         <ul className="space-y-4">
           <li>
-            <a href="#" className="flex items-center space-x-3 text-white hover:text-primary transition-colors">
-              <Home />
-              <span>Home</span>
-            </a>
+            <SidebarLink to="/" icon={<Home />} label="Home" />
           </li>
           <li>
-            <a href="#" className="flex items-center space-x-3 text-white hover:text-primary transition-colors">
-              <Search />
-              <span>Search</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" className="flex items-center space-x-3 text-white hover:text-primary transition-colors">
-              <Library />
-              <span>My Library</span>
-            </a>
+            <SidebarLink to="/library" icon={<Library />} label="My Library" />
           </li>
         </ul>
       </nav>
-      <div className="flex-grow">
-        <h2 className="text-lg font-semibold mb-4">Playlists</h2>
-        <ul className="space-y-2">
-            <li>
-                <a href="#" className="flex items-center space-x-3 text-gray-400 hover:text-primary transition-colors">
-                    <ListMusic size={20} />
-                    <span>My Awesome Mix</span>
-                </a>
-            </li>
-        </ul>
-      </div>
     </aside>
   );
 };

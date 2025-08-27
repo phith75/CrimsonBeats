@@ -13,11 +13,14 @@ interface PlayerContextType {
   currentTrack: Track | null;
   currentTrackIndex: number | null;
   isPlaying: boolean;
+  volume: number;
   playTrack: (index: number) => void;
+  playSingleTrack: (track: Track) => void;
   togglePlayPause: () => void;
   playNext: () => void;
   playPrev: () => void;
   loadPlaylist: (tracks: Track[]) => void;
+  setVolume: (volume: number) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -39,20 +42,40 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<any>(null);
+  const [volume, setVolumeState] = useState(80);
 
   useEffect(() => {
     const savedPlaylist = localStorage.getItem('playlist');
     if (savedPlaylist) {
       setPlaylist(JSON.parse(savedPlaylist));
     }
+    const savedVolume = localStorage.getItem('volume');
+    if (savedVolume) {
+      setVolumeState(Number(savedVolume));
+    }
   }, []);
 
   const currentTrack = currentTrackIndex !== null ? playlist[currentTrackIndex] : null;
+
+  const setVolume = (newVolume: number) => {
+    setVolumeState(newVolume);
+    localStorage.setItem('volume', String(newVolume));
+    if (player) {
+      player.setVolume(newVolume);
+    }
+  };
 
   const loadPlaylist = (tracks: Track[]) => {
     setPlaylist(tracks);
     localStorage.setItem('playlist', JSON.stringify(tracks));
     playTrack(0, tracks);
+  };
+
+  const playSingleTrack = (track: Track) => {
+    const newPlaylist = [track];
+    setPlaylist(newPlaylist);
+    localStorage.setItem('playlist', JSON.stringify(newPlaylist));
+    playTrack(0, newPlaylist);
   };
 
   const playTrack = (index: number, tracks: Track[] = playlist) => {
@@ -87,6 +110,7 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   
   const onReady = (event: any) => {
     setPlayer(event.target);
+    event.target.setVolume(volume);
   };
 
   const opts = {
@@ -98,7 +122,7 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   };
 
   return (
-    <PlayerContext.Provider value={{ playlist, currentTrack, currentTrackIndex, isPlaying, playTrack, togglePlayPause, playNext, playPrev, loadPlaylist }}>
+    <PlayerContext.Provider value={{ playlist, currentTrack, currentTrackIndex, isPlaying, volume, playTrack, playSingleTrack, togglePlayPause, playNext, playPrev, loadPlaylist, setVolume }}>
       {children}
       {currentTrack && (
          <YouTube

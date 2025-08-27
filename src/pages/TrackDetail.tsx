@@ -152,7 +152,7 @@ const TrackDetail = () => {
       </div>
       <div className="mt-8">
         <h2 className="text-2xl font-bold mb-4">Description</h2>
-        <p className="text-muted-foreground whitespace-pre-wrap">{details.description.substring(0, 500)}...</p>
+        <p className="text-muted-foreground whitespace-pre-wrap break-words">{details.description.substring(0, 500)}...</p>
       </div>
     </div>
   );

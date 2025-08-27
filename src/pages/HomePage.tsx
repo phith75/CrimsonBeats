@@ -62,7 +62,7 @@ const HomePage = () => {
 
   return (
     <AnimatedPage>
-      <div className="p-4 md:p-8 space-y-12 overflow-y-auto h-full">
+      <div className="space-y-12 overflow-y-auto h-full py-4 md:py-8 px-4 sm:px-14">
         <TrackCarousel title="Suggested For You" tracks={suggested} />
         <TrackCarousel title="Recently Played" tracks={history} />
         <TrackCarousel title="Your Favorites" tracks={favorites} />

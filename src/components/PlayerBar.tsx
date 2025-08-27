@@ -1,9 +1,10 @@
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { usePlayer } from "@/context/PlayerContext";
+import { formatTime } from "@/lib/utils";
 
 const PlayerBar = () => {
-  const { currentTrack, isPlaying, togglePlayPause, playNext, playPrev, volume, setVolume } = usePlayer();
+  const { currentTrack, isPlaying, togglePlayPause, playNext, playPrev, volume, setVolume, progress, duration, seekTo } = usePlayer();
 
   if (!currentTrack) {
     return (
@@ -17,12 +18,12 @@ const PlayerBar = () => {
     setVolume(value[0]);
   };
 
+  const handleProgressChange = (value: number[]) => {
+    seekTo(value[0]);
+  };
+
   const toggleMute = () => {
-    if (volume > 0) {
-      setVolume(0);
-    } else {
-      setVolume(80); // Restore to a default volume
-    }
+    setVolume(volume > 0 ? 0 : 80);
   };
 
   return (
@@ -45,6 +46,17 @@ const PlayerBar = () => {
           <button onClick={playNext} className="text-muted-foreground hover:text-white disabled:opacity-50" disabled={!currentTrack}>
             <SkipForward />
           </button>
+        </div>
+        <div className="w-full max-w-md flex items-center space-x-2">
+          <span className="text-xs text-muted-foreground w-10 text-right">{formatTime(progress)}</span>
+          <Slider
+            value={[progress]}
+            max={duration || 1}
+            step={1}
+            onValueChange={handleProgressChange}
+            className="w-full"
+          />
+          <span className="text-xs text-muted-foreground w-10 text-left">{formatTime(duration)}</span>
         </div>
       </div>
       <div className="flex items-center justify-end space-x-2">

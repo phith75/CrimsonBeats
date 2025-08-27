@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef, useCallback } from 'react';
 import YouTube from 'react-youtube';
 
 export interface Track {
@@ -14,6 +14,8 @@ interface PlayerContextType {
   currentTrackIndex: number | null;
   isPlaying: boolean;
   volume: number;
+  progress: number;
+  duration: number;
   playTrack: (index: number) => void;
   playSingleTrack: (track: Track) => void;
   togglePlayPause: () => void;
@@ -21,6 +23,7 @@ interface PlayerContextType {
   playPrev: () => void;
   loadPlaylist: (tracks: Track[]) => void;
   setVolume: (volume: number) => void;
+  seekTo: (time: number) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -43,26 +46,48 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<any>(null);
   const [volume, setVolumeState] = useState(80);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const savedPlaylist = localStorage.getItem('playlist');
-    if (savedPlaylist) {
-      setPlaylist(JSON.parse(savedPlaylist));
-    }
+    if (savedPlaylist) setPlaylist(JSON.parse(savedPlaylist));
     const savedVolume = localStorage.getItem('volume');
-    if (savedVolume) {
-      setVolumeState(Number(savedVolume));
+    if (savedVolume) setVolumeState(Number(savedVolume));
+  }, []);
+
+  const clearProgressInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
   }, []);
+
+  const startProgressInterval = useCallback(() => {
+    clearProgressInterval();
+    intervalRef.current = setInterval(() => {
+      if (player && typeof player.getCurrentTime === 'function') {
+        setProgress(player.getCurrentTime());
+      }
+    }, 1000);
+  }, [player, clearProgressInterval]);
+
+  useEffect(() => {
+    if (isPlaying && player) {
+      startProgressInterval();
+    } else {
+      clearProgressInterval();
+    }
+    return clearProgressInterval;
+  }, [isPlaying, player, startProgressInterval, clearProgressInterval]);
 
   const currentTrack = currentTrackIndex !== null ? playlist[currentTrackIndex] : null;
 
   const setVolume = (newVolume: number) => {
     setVolumeState(newVolume);
     localStorage.setItem('volume', String(newVolume));
-    if (player) {
-      player.setVolume(newVolume);
-    }
+    if (player) player.setVolume(newVolume);
   };
 
   const loadPlaylist = (tracks: Track[]) => {
@@ -82,14 +107,17 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
     if (tracks[index]) {
       setCurrentTrackIndex(index);
       setIsPlaying(true);
+      setProgress(0);
+      setDuration(0);
     }
   };
 
   const togglePlayPause = () => {
     if (currentTrack) {
-      setIsPlaying(!isPlaying);
+      const newIsPlaying = !isPlaying;
+      setIsPlaying(newIsPlaying);
       if (player) {
-        isPlaying ? player.pauseVideo() : player.playVideo();
+        newIsPlaying ? player.playVideo() : player.pauseVideo();
       }
     }
   };
@@ -107,28 +135,43 @@ export const PlayerProvider: React.FC<PlayerProviderProps> = ({ children }) => {
       playTrack(prevIndex);
     }
   };
+
+  const seekTo = (time: number) => {
+    if (player) {
+      player.seekTo(time, true);
+      setProgress(time);
+    }
+  };
   
   const onReady = (event: any) => {
     setPlayer(event.target);
     event.target.setVolume(volume);
   };
 
+  const onStateChange = (event: any) => {
+    if (event.data === 1) { // Playing
+      setIsPlaying(true);
+      setDuration(event.target.getDuration());
+    } else { // Paused, Buffering, Ended, etc.
+      setIsPlaying(false);
+    }
+  };
+
   const opts = {
     height: '0',
     width: '0',
-    playerVars: {
-      autoplay: 1,
-    },
+    playerVars: { autoplay: 1 },
   };
 
   return (
-    <PlayerContext.Provider value={{ playlist, currentTrack, currentTrackIndex, isPlaying, volume, playTrack, playSingleTrack, togglePlayPause, playNext, playPrev, loadPlaylist, setVolume }}>
+    <PlayerContext.Provider value={{ playlist, currentTrack, currentTrackIndex, isPlaying, volume, progress, duration, playTrack, playSingleTrack, togglePlayPause, playNext, playPrev, loadPlaylist, setVolume, seekTo }}>
       {children}
       {currentTrack && (
          <YouTube
             videoId={currentTrack.id}
             opts={opts}
             onReady={onReady}
+            onStateChange={onStateChange}
             onEnd={playNext}
             style={{ display: 'none' }}
           />

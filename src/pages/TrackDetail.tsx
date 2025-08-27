@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { usePlayer, Track } from '@/context/PlayerContext';
 import { Button } from '@/components/ui/button';
-import { Play, Heart, Clock, BarChart2, MessageCircle } from 'lucide-react';
+import { Play, Pause, Heart, Clock, BarChart2, MessageCircle } from 'lucide-react';
 import { showError } from '@/utils/toast';
 import { formatDuration } from '@/lib/utils';
 
@@ -22,7 +22,7 @@ const TrackDetail = () => {
   const { videoId } = useParams<{ videoId: string }>();
   const [details, setDetails] = useState<TrackDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const { playSingleTrack } = usePlayer();
+  const { playSingleTrack, currentTrack, isPlaying, togglePlayPause } = usePlayer();
 
   useEffect(() => {
     const fetchTrackDetails = async () => {
@@ -66,6 +66,17 @@ const TrackDetail = () => {
     fetchTrackDetails();
   }, [videoId]);
 
+  const isCurrentlyPlaying = isPlaying && currentTrack?.id === details?.id;
+
+  const handlePlayPauseClick = () => {
+    if (!details) return;
+    if (isCurrentlyPlaying) {
+      togglePlayPause();
+    } else {
+      playSingleTrack(details);
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
   }
@@ -83,8 +94,13 @@ const TrackDetail = () => {
           <h1 className="text-4xl md:text-6xl font-bold my-2">{details.title}</h1>
           <Link to={`/channel/${details.channelId}`} className="text-xl text-muted-foreground hover:text-primary hover:underline">{details.artist}</Link>
           <div className="flex items-center gap-4 mt-6">
-            <Button size="lg" onClick={() => playSingleTrack(details)}>
-              <Play className="mr-2 h-5 w-5 fill-current" /> Play
+            <Button size="lg" onClick={handlePlayPauseClick}>
+              {isCurrentlyPlaying ? (
+                <Pause className="mr-2 h-5 w-5 fill-current" />
+              ) : (
+                <Play className="mr-2 h-5 w-5 fill-current" />
+              )}
+              {isCurrentlyPlaying ? 'Pause' : 'Play'}
             </Button>
             <Button variant="outline" size="icon">
               <Heart />

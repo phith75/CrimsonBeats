@@ -27,7 +27,7 @@ const PlayerBar = () => {
       {/* --- Left Section (Track Info) --- */}
       <div className="flex items-center space-x-3 md:space-x-4 overflow-hidden">
         <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-12 h-12 md:w-14 md:h-14 object-cover rounded flex-shrink-0" />
-        <div className="truncate flex-1">
+        <div className="truncate flex-1 min-w-0">
           <p className="font-semibold truncate text-sm md:text-base">{currentTrack.title}</p>
           <p className="text-xs md:text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
         </div>

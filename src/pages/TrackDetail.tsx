@@ -128,9 +128,9 @@ const TrackDetail = () => {
     <div className="p-4 md:p-8 overflow-y-auto h-full">
       <div className="flex flex-col md:flex-row gap-8">
         <img src={details.thumbnail} alt={details.title} className="w-full md:w-1/3 aspect-square object-cover rounded-lg shadow-lg" />
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <p className="text-sm text-muted-foreground">SONG</p>
-          <h1 className="text-4xl md:text-6xl font-bold my-2">{details.title}</h1>
+          <h1 className="text-4xl md:text-6xl font-bold my-2 break-words">{details.title}</h1>
           <Link to={`/channel/${details.channelId}`} className="text-xl text-muted-foreground hover:text-primary hover:underline">{details.artist}</Link>
           <div className="flex items-center gap-4 mt-6">
             <Button size="lg" onClick={handlePlayPauseClick}>

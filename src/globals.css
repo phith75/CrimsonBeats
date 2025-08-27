@@ -76,7 +76,6 @@
   }
 }
 
-/* Hide visual artifacts from Dyad's component tagger */
 [data-dyad-id]::before,
 [data-dyad-id]::after {
     content: none !important;

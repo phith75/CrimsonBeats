@@ -7,11 +7,7 @@ const PlayerBar = () => {
   const { currentTrack, isPlaying, togglePlayPause, playNext, playPrev, volume, setVolume, progress, duration, seekTo } = usePlayer();
 
   if (!currentTrack) {
-    return (
-      <footer className="bg-secondary p-2 border-t border-border flex items-center justify-center h-[88px] md:h-[96px]">
-        <p className="text-muted-foreground text-sm">Chưa có bài hát nào đang phát</p>
-      </footer>
-    );
+    return null;
   }
 
   const handleVolumeChange = (value: number[]) => {
@@ -27,7 +23,7 @@ const PlayerBar = () => {
   };
 
   return (
-    <footer className="bg-secondary p-2 border-t border-border md:grid md:grid-cols-3 md:items-center md:gap-4 md:p-4 h-[88px] md:h-[96px]">
+    <footer className="bg-secondary p-2 border-t border-border md:grid md:grid-cols-3 md:items-center md:gap-4 md:p-4 h-[72px] md:h-[80px]">
       {/* --- Left Section (Track Info) --- */}
       <div className="flex items-center space-x-3 md:space-x-4 overflow-hidden">
         <img src={currentTrack.thumbnail} alt={currentTrack.title} className="w-12 h-12 md:w-14 md:h-14 object-cover rounded flex-shrink-0" />

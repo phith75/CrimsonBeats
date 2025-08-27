@@ -2,7 +2,7 @@ import { Home, Search, Library, ListMusic } from "lucide-react";
 
 const Sidebar = () => {
   return (
-    <aside className="bg-black p-6 flex flex-col space-y-8">
+    <aside className="bg-black p-6 flex flex-col space-y-8 w-64 h-full">
       <h1 className="text-3xl font-bold text-primary">CrimsonBeats</h1>
       <nav>
         <ul className="space-y-4">
